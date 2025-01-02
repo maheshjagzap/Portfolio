@@ -8893,15 +8893,15 @@ h1, h2, h3, h4, h5,
 }
 
 .services-1:hover .icon i {
-  color: #000;  /* Change icon color on hover */
+  color: white;  /* Change icon color on hover */
 }
 
 .services-1:hover h3 {
-  color: #000;
+  color: white;
 }
 
 .services-1:hover h3:after {
-  background: #000;
+  background: white;
 }
 
 @media (max-width: 767px) {
