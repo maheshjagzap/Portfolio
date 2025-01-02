@@ -9550,7 +9550,7 @@ textarea.form-control {
   .comment-list .children {
     padding: 50px 0 0 40px;
     margin: 0;
-    float: left;
+    float: left; 
     width: 100%; }
   .comment-list li {
     padding: 0;
