@@ -1,222 +1,376 @@
 /**
-* Template Name: EasyFolio
-* Template URL: https://bootstrapmade.com/easyfolio-bootstrap-portfolio-template/
-* Updated: Feb 21 2025 with Bootstrap v5.3.3
-* Author: BootstrapMade.com
-* License: https://bootstrapmade.com/license/
-*/
+ * Mahesh Jagzap Portfolio — main.js
+ * Full Stack .NET Developer
+ */
 
-(function() {
-  "use strict";
+(function () {
+  'use strict';
 
-  /**
-   * Apply .scrolled class to the body as the page is scrolled down
-   */
-  function toggleScrolled() {
-    const selectBody = document.querySelector('body');
-    const selectHeader = document.querySelector('#header');
-    if (!selectHeader.classList.contains('scroll-up-sticky') && !selectHeader.classList.contains('sticky-top') && !selectHeader.classList.contains('fixed-top')) return;
-    window.scrollY > 100 ? selectBody.classList.add('scrolled') : selectBody.classList.remove('scrolled');
-  }
-
-  document.addEventListener('scroll', toggleScrolled);
-  window.addEventListener('load', toggleScrolled);
-
-  /**
-   * Mobile nav toggle
-   */
-  const mobileNavToggleBtn = document.querySelector('.mobile-nav-toggle');
-
-  function mobileNavToogle() {
-    document.querySelector('body').classList.toggle('mobile-nav-active');
-    mobileNavToggleBtn.classList.toggle('bi-list');
-    mobileNavToggleBtn.classList.toggle('bi-x');
-  }
-  if (mobileNavToggleBtn) {
-    mobileNavToggleBtn.addEventListener('click', mobileNavToogle);
-  }
-
-  /**
-   * Hide mobile nav on same-page/hash links
-   */
-  document.querySelectorAll('#navmenu a').forEach(navmenu => {
-    navmenu.addEventListener('click', () => {
-      if (document.querySelector('.mobile-nav-active')) {
-        mobileNavToogle();
-      }
-    });
-
-  });
-
-  /**
-   * Toggle mobile nav dropdowns
-   */
-  document.querySelectorAll('.navmenu .toggle-dropdown').forEach(navmenu => {
-    navmenu.addEventListener('click', function(e) {
-      e.preventDefault();
-      this.parentNode.classList.toggle('active');
-      this.parentNode.nextElementSibling.classList.toggle('dropdown-active');
-      e.stopImmediatePropagation();
-    });
-  });
-
-  /**
-   * Scroll top button
-   */
-  let scrollTop = document.querySelector('.scroll-top');
-
-  function toggleScrollTop() {
-    if (scrollTop) {
-      window.scrollY > 100 ? scrollTop.classList.add('active') : scrollTop.classList.remove('active');
+  /* ── PRELOADER ─────────────────────────────────────── */
+  window.addEventListener('load', function () {
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+      setTimeout(() => preloader.classList.add('hidden'), 400);
     }
-  }
-  scrollTop.addEventListener('click', (e) => {
-    e.preventDefault();
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
   });
 
-  window.addEventListener('load', toggleScrollTop);
-  document.addEventListener('scroll', toggleScrollTop);
+  /* ── THEME TOGGLE ──────────────────────────────────── */
+  const themeToggle = document.getElementById('themeToggle');
+  const html        = document.documentElement;
 
-  /**
-   * Animation on scroll function and init
-   */
-  function aosInit() {
-    AOS.init({
-      duration: 600,
-      easing: 'ease-in-out',
-      once: true,
-      mirror: false
+  function applyTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem('mj-theme', theme);
+  }
+
+  // Load saved preference, default dark
+  const saved = localStorage.getItem('mj-theme') || 'dark';
+  applyTheme(saved);
+
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const current = html.getAttribute('data-theme');
+      applyTheme(current === 'dark' ? 'light' : 'dark');
     });
   }
-  window.addEventListener('load', aosInit);
 
-  /**
-   * Animate the skills items on reveal
-   */
-  let skillsAnimation = document.querySelectorAll('.skills-animation');
-  skillsAnimation.forEach((item) => {
-    new Waypoint({
-      element: item,
-      offset: '80%',
-      handler: function(direction) {
-        let progress = item.querySelectorAll('.progress .progress-bar');
-        progress.forEach(el => {
-          el.style.width = el.getAttribute('aria-valuenow') + '%';
-        });
-      }
+  /* ── HEADER SCROLL ─────────────────────────────────── */
+  const header = document.getElementById('header');
+
+  function onScroll() {
+    if (!header) return;
+    header.classList.toggle('scrolled', window.scrollY > 60);
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ── MOBILE NAV ────────────────────────────────────── */
+  const mobileBtn = document.getElementById('mobileNavToggle');
+  const navbar    = document.getElementById('navbar');
+
+  if (mobileBtn && navbar) {
+    mobileBtn.addEventListener('click', () => {
+      navbar.classList.toggle('open');
+      mobileBtn.classList.toggle('open');
+      document.body.style.overflow = navbar.classList.contains('open') ? 'hidden' : '';
     });
-  });
 
-  /**
-   * Initiate glightbox
-   */
-  const glightbox = GLightbox({
-    selector: '.glightbox'
-  });
-
-  /**
-   * Init isotope layout and filters
-   */
-  document.querySelectorAll('.isotope-layout').forEach(function(isotopeItem) {
-    let layout = isotopeItem.getAttribute('data-layout') ?? 'masonry';
-    let filter = isotopeItem.getAttribute('data-default-filter') ?? '*';
-    let sort = isotopeItem.getAttribute('data-sort') ?? 'original-order';
-
-    let initIsotope;
-    imagesLoaded(isotopeItem.querySelector('.isotope-container'), function() {
-      initIsotope = new Isotope(isotopeItem.querySelector('.isotope-container'), {
-        itemSelector: '.isotope-item',
-        layoutMode: layout,
-        filter: filter,
-        sortBy: sort
+    // Close on link click
+    navbar.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        navbar.classList.remove('open');
+        mobileBtn.classList.remove('open');
+        document.body.style.overflow = '';
       });
     });
 
-    isotopeItem.querySelectorAll('.isotope-filters li').forEach(function(filters) {
-      filters.addEventListener('click', function() {
-        isotopeItem.querySelector('.isotope-filters .filter-active').classList.remove('filter-active');
-        this.classList.add('filter-active');
-        initIsotope.arrange({
-          filter: this.getAttribute('data-filter')
-        });
-        if (typeof aosInit === 'function') {
-          aosInit();
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (navbar.classList.contains('open') && !navbar.contains(e.target) && !mobileBtn.contains(e.target)) {
+        navbar.classList.remove('open');
+        mobileBtn.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+  }
+
+  /* ── ACTIVE NAV LINK (scrollspy) ───────────────────── */
+  const navLinks  = document.querySelectorAll('.nav-link');
+  const sections  = document.querySelectorAll('section[id]');
+
+  function updateActiveLink() {
+    const scrollPos = window.scrollY + 100;
+    sections.forEach(section => {
+      const top    = section.offsetTop;
+      const bottom = top + section.offsetHeight;
+      if (scrollPos >= top && scrollPos < bottom) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.nav-link[href="#${section.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }
+
+  window.addEventListener('scroll', updateActiveLink, { passive: true });
+  updateActiveLink();
+
+  /* ── SCROLL TO TOP ─────────────────────────────────── */
+  const scrollTopBtn = document.getElementById('scrollTop');
+
+  if (scrollTopBtn) {
+    window.addEventListener('scroll', () => {
+      scrollTopBtn.classList.toggle('visible', window.scrollY > 300);
+    }, { passive: true });
+
+    scrollTopBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  /* ── AOS INIT ──────────────────────────────────────── */
+  if (typeof AOS !== 'undefined') {
+    AOS.init({
+      duration: 700,
+      easing: 'ease-out-cubic',
+      once: true,
+      offset: 60,
+    });
+  }
+
+  /* ── SKILL BARS ANIMATION ──────────────────────────── */
+  function animateSkillBars(panel) {
+    if (!panel) return;
+    panel.querySelectorAll('.skill-fill').forEach(bar => {
+      const target = bar.getAttribute('data-width');
+      bar.style.width = '0';
+      setTimeout(() => { bar.style.width = target + '%'; }, 50);
+    });
+  }
+
+  // Animate on tab switch
+  const skillTabs  = document.querySelectorAll('.skill-tab');
+  const skillPanels = document.querySelectorAll('.skill-panel');
+
+  skillTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      skillTabs.forEach(t => t.classList.remove('active'));
+      skillPanels.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      const panel = document.getElementById('tab-' + tab.dataset.tab);
+      if (panel) {
+        panel.classList.add('active');
+        animateSkillBars(panel);
+      }
+    });
+  });
+
+  // Animate default (backend) on reveal via IntersectionObserver
+  const skillsSection = document.getElementById('skills');
+  if (skillsSection) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateSkillBars(document.querySelector('.skill-panel.active'));
+          observer.unobserve(entry.target);
         }
-      }, false);
-    });
-
-  });
-
-  /**
-   * Init swiper sliders
-   */
-  function initSwiper() {
-    document.querySelectorAll(".init-swiper").forEach(function(swiperElement) {
-      let config = JSON.parse(
-        swiperElement.querySelector(".swiper-config").innerHTML.trim()
-      );
-
-      if (swiperElement.classList.contains("swiper-tab")) {
-        initSwiperWithCustomPagination(swiperElement, config);
-      } else {
-        new Swiper(swiperElement, config);
-      }
-    });
+      });
+    }, { threshold: 0.2 });
+    observer.observe(skillsSection);
   }
 
-  window.addEventListener("load", initSwiper);
+  /* ── PROJECT FILTER ────────────────────────────────── */
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const projectCards = document.querySelectorAll('.project-card');
+  const featuredProject = document.querySelector('.featured-project');
 
-  /**
-   * Frequently Asked Questions Toggle
-   */
-  document.querySelectorAll('.faq-item h3, .faq-item .faq-toggle').forEach((faqItem) => {
-    faqItem.addEventListener('click', () => {
-      faqItem.parentNode.classList.toggle('faq-active');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const filter = btn.dataset.filter;
+
+      // Handle featured project visibility
+      if (featuredProject) {
+        const fpTags = featuredProject.dataset.tags || '';
+        featuredProject.style.display =
+          (filter === 'all' || fpTags.split(' ').includes(filter)) ? '' : 'none';
+      }
+
+      // Handle project cards
+      projectCards.forEach(card => {
+        const tags = (card.dataset.tags || '').split(' ');
+        const show = filter === 'all' || tags.includes(filter);
+        card.classList.toggle('hidden', !show);
+        if (show) card.style.animation = 'fadeInUp 0.4s ease forwards';
+      });
     });
   });
 
-  /**
-   * Correct scrolling position upon page load for URLs containing hash links.
+  /* ── FEATURED PROJECT IMAGE SWITCHER ───────────────── */
+  window.switchFpImg = function (thumb, src) {
+    const mainImg = document.getElementById('fpMainImg');
+    if (!mainImg) return;
+    // Fade out → swap → fade in
+    mainImg.style.opacity = '0';
+    mainImg.style.transform = 'scale(0.97)';
+    setTimeout(() => {
+      mainImg.src = src;
+      mainImg.style.opacity = '1';
+      mainImg.style.transform = 'scale(1)';
+    }, 200);
+    // Update active thumb
+    document.querySelectorAll('.fp-thumb').forEach(t => t.classList.remove('active'));
+    thumb.classList.add('active');
+  };
+
+  /* ── EMAILJS CONTACT FORM ──────────────────────────── */
+  /*
+   * EmailJS Configuration
+   * ─────────────────────
+   * SETUP STEPS (one-time, takes ~5 minutes):
+   *
+   * 1. Go to https://www.emailjs.com and create a FREE account
+   * 2. Dashboard → Email Services → Add New Service → Select Gmail
+   *    → Connect your Gmail (maheshjagzap03@gmail.com) → Copy the SERVICE ID
+   * 3. Dashboard → Email Templates → Create New Template
+   *    Paste this as the template body:
+   *    ─────────────────────────────────────────────────
+   *    Subject: New Contact from Portfolio — {{from_name}}
+   *
+   *    Name:         {{from_name}}
+   *    Email:        {{from_email}}
+   *    Project Type: {{project_type}}
+   *    Budget:       {{budget}}
+   *
+   *    Message:
+   *    {{message}}
+   *    ─────────────────────────────────────────────────
+   *    Set "To Email" = maheshjagzap03@gmail.com
+   *    Set "Reply To" = {{from_email}}   ← so you can reply directly
+   *    Save → Copy the TEMPLATE ID
+   * 4. Dashboard → Account → Copy your PUBLIC KEY
+   * 5. Replace the three placeholder values below with your actual IDs.
    */
-  window.addEventListener('load', function(e) {
-    if (window.location.hash) {
-      if (document.querySelector(window.location.hash)) {
+
+  const EMAILJS_PUBLIC_KEY  = 'doZX5MoMRlcKpTjOD';
+  const EMAILJS_SERVICE_ID  = 'service_ixsw4t8';
+  const EMAILJS_TEMPLATE_ID = 'template_6lpa9fr';
+
+  // Initialise EmailJS
+  if (typeof emailjs !== 'undefined') {
+    emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  }
+
+  const contactForm = document.getElementById('contactForm');
+  const formLoading  = document.getElementById('formLoading');
+  const formSuccess  = document.getElementById('formSuccess');
+  const formError    = document.getElementById('formError');
+  const submitBtn    = document.getElementById('submitBtn');
+
+  function showStatus(el) {
+    [formLoading, formSuccess, formError].forEach(e => {
+      if (e) e.classList.remove('visible');
+    });
+    if (el) el.classList.add('visible');
+  }
+
+  if (contactForm) {
+    contactForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      // Basic validation
+      const name    = contactForm.querySelector('#name').value.trim();
+      const phone   = contactForm.querySelector('#phone') ? contactForm.querySelector('#phone').value.trim() : '';
+      const email   = contactForm.querySelector('#email') ? contactForm.querySelector('#email').value.trim() : '';
+      const message = contactForm.querySelector('#message').value.trim();
+
+      if (!name || (!phone && !email) || !message) {
+        showStatus(formError);
+        if (formError) formError.textContent = '⚠ Please fill in Name, Phone/Email and Project Description.';
+        return;
+      }
+
+      showStatus(formLoading);
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Sending…';
+      }
+
+      // Check if keys have been configured
+      if (EMAILJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY') {
+        // Keys not yet set — show a helpful dev message
         setTimeout(() => {
-          let section = document.querySelector(window.location.hash);
-          let scrollMarginTop = getComputedStyle(section).scrollMarginTop;
-          window.scrollTo({
-            top: section.offsetTop - parseInt(scrollMarginTop),
-            behavior: 'smooth'
-          });
-        }, 100);
+          showStatus(formError);
+          if (formError) formError.innerHTML =
+            '⚙ EmailJS not configured yet. See the setup instructions in <code>assets/js/main.js</code>.';
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-send"></i> Send Message';
+          }
+        }, 800);
+        return;
       }
-    }
+
+      // Build template params — these variable names must match your EmailJS template
+      const businessName = contactForm.querySelector('#business_name') ? contactForm.querySelector('#business_name').value.trim() : '';
+      const templateParams = {
+        from_name:     name,
+        business_name: businessName || 'Not provided',
+        from_phone:    phone || 'Not provided',
+        from_email:    email || 'Not provided',
+        project_type:  contactForm.querySelector('#project_type') ? contactForm.querySelector('#project_type').value || 'Not specified' : 'Not specified',
+        budget:        contactForm.querySelector('#budget') ? contactForm.querySelector('#budget').value || 'Not specified' : 'Not specified',
+        message:       message,
+        reply_to:      email || phone,
+      };
+
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+        .then(() => {
+          showStatus(formSuccess);
+          contactForm.reset();
+        })
+        .catch((err) => {
+          console.error('EmailJS error:', err);
+          showStatus(formError);
+          if (formError) formError.textContent = '✖ Something went wrong. Please email me directly at maheshjagzap03@gmail.com';
+        })
+        .finally(() => {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-send"></i> Send Message';
+          }
+        });
+    });
+  }
+
+  /* ── SMOOTH SCROLL for anchor links ───────────────── */
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        const headerHeight = header ? header.offsetHeight : 0;
+        const top = target.getBoundingClientRect().top + window.scrollY - headerHeight - 16;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    });
   });
 
-  /**
-   * Navmenu Scrollspy
-   */
-  let navmenulinks = document.querySelectorAll('.navmenu a');
-
-  function navmenuScrollspy() {
-    navmenulinks.forEach(navmenulink => {
-      if (!navmenulink.hash) return;
-      let section = document.querySelector(navmenulink.hash);
-      if (!section) return;
-      let position = window.scrollY + 200;
-      if (position >= section.offsetTop && position <= (section.offsetTop + section.offsetHeight)) {
-        document.querySelectorAll('.navmenu a.active').forEach(link => link.classList.remove('active'));
-        navmenulink.classList.add('active');
+  /* ── COUNTER ANIMATION ─────────────────────────────── */
+  function animateCounter(el, target, duration = 1500) {
+    let start = 0;
+    const increment = target / (duration / 16);
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= target) {
+        el.textContent = target + (el.dataset.suffix || '');
+        clearInterval(timer);
       } else {
-        navmenulink.classList.remove('active');
+        el.textContent = Math.floor(start) + (el.dataset.suffix || '');
       }
-    })
+    }, 16);
   }
-  window.addEventListener('load', navmenuScrollspy);
-  document.addEventListener('scroll', navmenuScrollspy);
+
+  const statsSection = document.querySelector('.hero-stats');
+  if (statsSection) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          document.querySelectorAll('.stat-num').forEach(el => {
+            const text = el.textContent;
+            const num = parseInt(text);
+            const suffix = text.replace(/[0-9]/g, '');
+            el.dataset.suffix = suffix;
+            animateCounter(el, num);
+          });
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    obs.observe(statsSection);
+  }
 
 })();
